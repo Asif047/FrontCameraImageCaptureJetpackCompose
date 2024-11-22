@@ -92,7 +92,8 @@ private fun captureImage(
             executor,
             object : androidx.camera.core.ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(imageProxy: androidx.camera.core.ImageProxy) {
-                    val bitmap = imageProxy.toBitmap()
+                    val rotationDegrees = imageProxy.imageInfo.rotationDegrees // Get rotation
+                    val bitmap = imageProxy.toBitmap()?.rotate(rotationDegrees.toFloat()) // Rotate bitmap
                     imageProxy.close()
                     bitmap?.let { onImageCaptured(it) }
                 }
@@ -104,6 +105,7 @@ private fun captureImage(
         )
     }, ContextCompat.getMainExecutor(context))
 }
+
 
 // Convert ImageProxy to Bitmap
 private fun androidx.camera.core.ImageProxy.toBitmap(): Bitmap? {
@@ -159,8 +161,10 @@ fun CircularCameraApp(navController: NavController) {
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(300.dp)
-                        .clip(CircleShape)
+                        .size(300.dp) // Circular boundary size
+                        .clip(CircleShape) // Ensure the circular clipping
+                        .background(Color.Black), // Optional, to ensure no empty spaces show
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop // Crop image to fit the circle
                 )
             }
 
@@ -183,6 +187,11 @@ fun CircularCameraApp(navController: NavController) {
             }
         }
     }
+}
+
+private fun Bitmap.rotate(degrees: Float): Bitmap {
+    val matrix = android.graphics.Matrix().apply { postRotate(degrees) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }
 
 
