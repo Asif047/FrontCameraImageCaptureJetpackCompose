@@ -69,4 +69,6 @@ dependencies {
 
     implementation("androidx.camera:camera-view:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }
