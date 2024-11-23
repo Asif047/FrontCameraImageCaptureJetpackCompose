@@ -1,6 +1,10 @@
 package com.asif047.frontcameraimagecapturejetpackcompose.ui
 
+import android.Manifest
 import android.graphics.BitmapFactory
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
@@ -10,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.asif047.frontcameraimagecapturejetpackcompose.viewmodel.UploadViewModel
@@ -23,6 +28,29 @@ fun UploadImageScreen(navController: NavController, uploadViewModel: UploadViewM
     // Mutable state for UI feedback
     var isUploading by remember { mutableStateOf(false) }
     var uploadErrorMessage by remember { mutableStateOf<String?>(null) }
+    var hasCameraPermission by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    // Permission launcher
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            hasCameraPermission = granted
+            if (!granted) {
+                Toast.makeText(
+                    context,
+                    "Camera permission is required to capture images.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
+
+    // Check and request camera permission at the start
+    LaunchedEffect(Unit) {
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    }
 
     // Observe the SavedStateHandle for the "capturedImagePath"
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
