@@ -16,7 +16,9 @@ import androidx.navigation.compose.rememberNavController
 import com.asif047.frontcameraimagecapturejetpackcompose.navigation.AppNavigation
 import com.asif047.frontcameraimagecapturejetpackcompose.ui.CircularCameraApp
 import com.asif047.frontcameraimagecapturejetpackcompose.ui.theme.FrontCameraImageCaptureJetpackComposeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

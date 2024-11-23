@@ -12,12 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.asif047.frontcameraimagecapturejetpackcompose.viewmodel.UploadViewModel
 import java.io.File
 
 @Composable
-fun UploadImageScreen(navController: NavController) {
+fun UploadImageScreen(navController: NavController, uploadViewModel: UploadViewModel = androidx.hilt.navigation.compose.hiltViewModel()) {
     // Mutable state to hold the captured image path
     var capturedImagePath by remember { mutableStateOf<String?>(null) }
+
+    // Mutable state for UI feedback
+    var isUploading by remember { mutableStateOf(false) }
+    var uploadErrorMessage by remember { mutableStateOf<String?>(null) }
 
     // Observe the SavedStateHandle for the "capturedImagePath"
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
@@ -59,15 +64,38 @@ fun UploadImageScreen(navController: NavController) {
             }
         }
 
+        // Show upload error message if any
+        uploadErrorMessage?.let {
+            Text(
+                text = "Error: $it",
+                color = androidx.compose.ui.graphics.Color.Red
+            )
+        }
+
         // Upload Button
         Button(
             onClick = {
-                // TODO: Trigger upload logic using the capturedImagePath
+                capturedImagePath?.let { path ->
+                    isUploading = true
+                    uploadViewModel.uploadImage(
+                        apiKey = "c76b89c86f05efb767fb03a226cbefb5", // Replace with actual API key
+                        imageFile = File(path),
+                        onSuccess = {
+                            isUploading = false
+                            //navController.navigate("upload_success_screen") // Navigate on success
+                        },
+                        onError = { errorMessage ->
+                            isUploading = false
+                            uploadErrorMessage = errorMessage
+                        }
+                    )
+                }
             },
-            enabled = capturedImagePath != null
+            enabled = capturedImagePath != null && !isUploading
         ) {
-            Text(text = "Upload Image")
+            Text(text = if (isUploading) "Uploading..." else "Upload Image")
         }
     }
 }
+
 
